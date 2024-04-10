@@ -1,0 +1,3 @@
+Fazer as services, e service de checagem do token com a RSA,
+melhorar o esquema de autorização (roles, permisions, esquema tipo ldap ?),
+implementar um crud

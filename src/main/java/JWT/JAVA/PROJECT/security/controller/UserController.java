@@ -1,10 +1,13 @@
 package JWT.JAVA.PROJECT.security.controller;
 
+import java.util.List;
 import java.util.Set;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,7 +33,6 @@ public class UserController {
     }
 
     @PostMapping("/users")
-
     public ResponseEntity<Void> newUser(@RequestBody CreateUser dto){
 
         var basicRole = roleRepository.findByName(Role.Values.BASIC.name().toLowerCase());
@@ -48,6 +50,13 @@ public class UserController {
         userRepository.save(user);
 
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/users")
+    @PreAuthorize("hasAuthority('SCOPE_admin')")
+    public ResponseEntity<List> listUsers(){
+        var users = userRepository.findAll();
+        return ResponseEntity.ok(users);
     }
 
 }
