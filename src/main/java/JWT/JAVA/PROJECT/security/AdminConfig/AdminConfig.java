@@ -40,7 +40,7 @@ public class AdminConfig implements CommandLineRunner {
                 var user = new User();
                 user.setUsername("admin");
                 user.setPassword(passwordEncoder.encode("123"));
-                user.setRoles(Set.of(roleAdmin));
+                user.setRoles(Set.of(roleAdmin.get()));
                 userRepository.save(user);
                 
             }

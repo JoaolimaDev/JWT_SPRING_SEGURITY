@@ -1,7 +1,6 @@
 package JWT.JAVA.PROJECT.security.controller;
 
 import java.time.Instant;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.springframework.http.ResponseEntity;
@@ -14,8 +13,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import JWT.JAVA.PROJECT.security.controller.dto.LoginRequest;
-import JWT.JAVA.PROJECT.security.controller.dto.LoginResponse;
+import JWT.JAVA.PROJECT.security.dto.LoginRequest;
+import JWT.JAVA.PROJECT.security.dto.LoginResponse;
 import JWT.JAVA.PROJECT.security.model.Role;
 import JWT.JAVA.PROJECT.security.repository.UserRepository;
 

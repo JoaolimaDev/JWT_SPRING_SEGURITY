@@ -1,62 +1,67 @@
 package JWT.JAVA.PROJECT.security.controller;
 
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
-import JWT.JAVA.PROJECT.security.controller.dto.CreateUser;
-import JWT.JAVA.PROJECT.security.model.Role;
-import JWT.JAVA.PROJECT.security.model.User;
-import JWT.JAVA.PROJECT.security.repository.RoleRepository;
-import JWT.JAVA.PROJECT.security.repository.UserRepository;
+import JWT.JAVA.PROJECT.security.config.ViewConfig;
+import JWT.JAVA.PROJECT.security.dto.CreateUser;
+import JWT.JAVA.PROJECT.security.dto.UpdateUser;
+import JWT.JAVA.PROJECT.security.service.UserService;
 
 @RestController
 public class UserController {
     
-    private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
-    private final BCryptPasswordEncoder passwordEncoder;
+    @Autowired
+    public UserService userService;
 
-    public UserController(UserRepository userRepository, RoleRepository roleRepository, BCryptPasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
+    @Autowired
+    public ViewConfig viewConfig;
 
     @PostMapping("/users")
-    public ResponseEntity<Void> newUser(@RequestBody CreateUser dto){
+    public ResponseEntity<Map<String, Object>> newUser(@RequestBody CreateUser dto){
 
-        var basicRole = roleRepository.findByName(Role.Values.BASIC.name().toLowerCase());
-        var userFromDb = userRepository.findByUsername(dto.username());
-
-        if (userFromDb.isPresent()) {
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY);
+        if (!dto.anyFieldIsNull().isEmpty()) {
+           return viewConfig.ResponseEntity(HttpStatus.BAD_REQUEST, "Campos faltantes: " + dto.anyFieldIsNull());
         }
 
-        var user = new User();
-        user.setPassword(passwordEncoder.encode(dto.password()));
-        user.setUsername(dto.username());
-        user.setRoles(Set.of(basicRole));
+        return userService.createUser(dto);
 
-        userRepository.save(user);
+    } 
 
-        return ResponseEntity.ok().build();
+    @PutMapping("/users/{id}/")
+    public ResponseEntity<Map<String, Object>> updateUser(@PathVariable String id, @RequestBody UpdateUser dto){
+
+        if (!dto.anyFieldIsNull().isEmpty()) {
+            return viewConfig.ResponseEntity(HttpStatus.BAD_REQUEST, "Campos faltantes: " + dto.anyFieldIsNull());
+        }
+        
+        return userService.updateUser(dto, id);
     }
 
     @GetMapping("/users")
     @PreAuthorize("hasAuthority('SCOPE_admin')")
-    public ResponseEntity<List> listUsers(){
-        var users = userRepository.findAll();
-        return ResponseEntity.ok(users);
+    public ResponseEntity<Map<String, Object>> listUsers(){
+       
+      return userService.listUsers();
+    }
+
+    @DeleteMapping("/users/{id}/")
+    @PreAuthorize("hasAuthority('SCOPE_admin')")
+    public ResponseEntity<Map<String, Object>> deleteUser(@PathVariable String id){
+
+        return userService.deleteUser(id);
     }
 
 }
