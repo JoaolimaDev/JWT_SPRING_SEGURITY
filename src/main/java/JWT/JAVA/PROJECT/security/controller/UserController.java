@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -40,14 +41,14 @@ public class UserController {
 
     } 
 
-    @PutMapping("/users/{id}/")
-    public ResponseEntity<Map<String, Object>> updateUser(@PathVariable String id, @RequestBody UpdateUser dto){
+    @PutMapping("/users")
+    public ResponseEntity<Map<String, Object>> updateUser(JwtAuthenticationToken token, @RequestBody UpdateUser dto){
 
         if (!dto.anyFieldIsNull().isEmpty()) {
             return viewConfig.ResponseEntity(HttpStatus.BAD_REQUEST, "Campos faltantes: " + dto.anyFieldIsNull());
         }
         
-        return userService.updateUser(dto, id);
+        return userService.updateUser(dto, token);
     }
 
     @GetMapping("/users")
@@ -57,11 +58,11 @@ public class UserController {
       return userService.listUsers();
     }
 
-    @DeleteMapping("/users/{id}/")
+    @DeleteMapping("/users")
     @PreAuthorize("hasAuthority('SCOPE_admin')")
-    public ResponseEntity<Map<String, Object>> deleteUser(@PathVariable String id){
+    public ResponseEntity<Map<String, Object>> deleteUser(JwtAuthenticationToken token){
 
-        return userService.deleteUser(id);
+        return userService.deleteUser(token);
     }
 
 }

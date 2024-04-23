@@ -1,6 +1,7 @@
 package JWT.JAVA.PROJECT.security.model;
 
 import java.time.Instant;
+import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -18,9 +19,9 @@ import jakarta.persistence.Table;
 public class Tweet {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "tweet_id")
-    private Long id;
+    private UUID id;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -31,11 +32,11 @@ public class Tweet {
     @CreationTimestamp
     private Instant timestamp;
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

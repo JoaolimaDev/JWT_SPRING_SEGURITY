@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 
 import JWT.JAVA.PROJECT.security.config.ViewConfig;
@@ -109,7 +110,7 @@ public class UserService {
 
     }
 
-    public ResponseEntity<Map<String, Object>> updateUser(UpdateUser dto, String id){
+    public ResponseEntity<Map<String, Object>> updateUser(UpdateUser dto, JwtAuthenticationToken id){
 
         if (dto.role().contains("admin")) {
             return viewConfig.ResponseEntity(HttpStatus.BAD_REQUEST, "Role admin não é válida para este endpoint!");
@@ -140,7 +141,7 @@ public class UserService {
             return viewConfig.ResponseEntity(HttpStatus.BAD_REQUEST, "Email já cadastrado!");
         }
 
-        Optional<User> optionalUser = userRepository.findById(UUID.fromString(id));
+        Optional<User> optionalUser = userRepository.findById(UUID.fromString(id.getName()));
 
         String userUpdate = optionalUser.map(user -> {
             Set<Role> roles = new HashSet<>(Set.of(whichRole.get()));
@@ -150,7 +151,7 @@ public class UserService {
             user.setPassword(dto.password());
             userRepository.save(user);
             return "Usuário " + dto.username() + " atualizado!";
-        }).orElse("Usuário inexistente!");
+        }).orElse("Usuário não encontrado!");
       
         return viewConfig.ResponseEntity(HttpStatus.OK, userUpdate);
     }
@@ -160,13 +161,22 @@ public class UserService {
         return viewConfig.ResponseEntityList(HttpStatus.OK, userRepository.findAllUsers());
     }
 
-    public ResponseEntity<Map<String, Object>> deleteUser(String id){
+    public ResponseEntity<Map<String, Object>> deleteUser(JwtAuthenticationToken token){
 
-        Optional<User> userOptional = userRepository.findById(UUID.fromString(id));
+        Optional<User> userOptional = userRepository.findById(UUID.fromString(token.getName()));
 
         String userDeleted = userOptional.map(user -> {
+
+            var isAdmin = user.getRoles().toString().equals("admin");
+
+            if (isAdmin) {
+                userRepository.deleteById(user.getUserId());
+                return "Usuário deletado por admin!";
+            }
+
             userRepository.deleteById(user.getUserId());
             return "Usuário deletado!";
+
         }).orElse("Usuário inexistente!");
 
         return viewConfig.ResponseEntity(HttpStatus.OK, userDeleted);

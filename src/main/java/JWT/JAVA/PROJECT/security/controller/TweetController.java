@@ -1,9 +1,8 @@
 package JWT.JAVA.PROJECT.security.controller;
 
-import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,39 +24,27 @@ public class TweetController {
 
 
     @PostMapping("/tweets")
-    public ResponseEntity<Void> CreateTweet(@RequestBody CreateTweetDto dto, JwtAuthenticationToken token){
+    public ResponseEntity<Map<String, Object>> CreateTweet(@RequestBody CreateTweetDto dto, JwtAuthenticationToken token){
 
-        tweetService.CreateTweet(dto, token);
-
-        return ResponseEntity.ok().build();
-        
+       return tweetService.CreateTweet(dto, token);
     }
 
-    @DeleteMapping("/tweets/{id}")
-    public ResponseEntity<Void> DeletTweets(@PathVariable("id") Long tweetId, JwtAuthenticationToken token){
+    @DeleteMapping("/tweets/{id}/")
+    public ResponseEntity<Map<String, Object>> DeletTweets(@PathVariable("id") String tweetId, JwtAuthenticationToken token){
 
-        if (tweetService.DeleteTweet(tweetId, token)) {
-            return ResponseEntity.ok().build();
-        }
-
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        return tweetService.DeleteTweet(tweetId, token);
     }
 
-    @PutMapping("/tweets/{id}")
-    public ResponseEntity<Void>  UpdateTweets(@RequestBody CreateTweetDto dto, @PathVariable("id") Long tweetId, JwtAuthenticationToken token){
+    @PutMapping("/tweets/{id}/")
+    public ResponseEntity<Map<String, Object>>  UpdateTweets(@RequestBody CreateTweetDto dto, @PathVariable("id") String tweetId, JwtAuthenticationToken token){
 
-        if (tweetService.UpdateTweets(dto, tweetId, token)) {
-            return ResponseEntity.ok().build();
-        }
-
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        return tweetService.UpdateTweets(dto, tweetId, token);
     }
 
-    @SuppressWarnings("rawtypes")
     @GetMapping("/tweets")
-    public ResponseEntity<List> GetTweets(){
+    public ResponseEntity<Map<String, Object>> GetTweets(){
 
-        return ResponseEntity.ok(tweetService.GetTweets());
+        return tweetService.GetTweets();
         
     }
 

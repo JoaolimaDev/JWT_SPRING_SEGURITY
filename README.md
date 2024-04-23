@@ -1,6 +1,6 @@
-# Spring Security com JWT e aplicação de Attribute-based Access Control (ABAC).
+# Spring Security com JWT e Role based access control.
 
-<img src="https://raw.githubusercontent.com/heutelbeck/sapl-tutorial-01-spring/main/abac.png" alt="Exemplo imagem">
+<img src="https://miro.medium.com/v2/resize:fit:1400/1*EcbUIt-Fgf55UQGXcPx9cQ.png" alt="Exemplo imagem">
 
 > Projeto Spring com CRUD e integrações de segurança, implementando ouath2, JWT e ABAC.
 
@@ -10,7 +10,7 @@ O projeto ainda está em desenvolvimento e as próximas atualizações serão vo
 
 - [x] JWT
 - [x] Docker Postgresql
-- [ ] Implementar ABAC, Attribute-based Access Control.
+- [ ] Implementar RABAC, Role based access control.
 - [ ] Adicionar services de checagem
 - [ ] Adicionar testes
 

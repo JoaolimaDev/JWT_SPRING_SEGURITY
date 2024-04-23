@@ -1,21 +1,27 @@
 package JWT.JAVA.PROJECT.security.service;
 
-import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 
-
+import JWT.JAVA.PROJECT.security.config.ViewConfig;
 import JWT.JAVA.PROJECT.security.dto.CreateTweetDto;
-import JWT.JAVA.PROJECT.security.model.Role;
 import JWT.JAVA.PROJECT.security.model.Tweet;
+import JWT.JAVA.PROJECT.security.model.User;
 import JWT.JAVA.PROJECT.security.repository.TweetRepository;
 import JWT.JAVA.PROJECT.security.repository.UserRepository;
 
 @Service
 public class TweetService {
+
+    @Autowired
+    private ViewConfig viewConfig;
 
     private final TweetRepository tweetRepository;
     private final UserRepository userRepository;
@@ -25,57 +31,67 @@ public class TweetService {
         this.userRepository = userRepository;
     }
 
-    public void CreateTweet(CreateTweetDto dto, JwtAuthenticationToken token){
+    public ResponseEntity<Map<String, Object>> CreateTweet(CreateTweetDto dto, JwtAuthenticationToken token){
         
-        var user = userRepository.findById(UUID.fromString(token.getName()));
+        Optional<User> user = userRepository.findById(UUID.fromString(token.getName()));
+        
+        String tweetOptional = user.map(userCon -> {
+            var tweet = new Tweet();
+            tweet.setUser(userCon);
+            tweet.setContent(dto.content());
+            tweetRepository.save(tweet);
+            return "Publicação criada!";
+        }).orElse("Usuário não encontrado!");
 
-        var tweet = new Tweet();
-        tweet.setUser(user.get());
-        tweet.setContent(dto.content());
-        
-        tweetRepository.save(tweet);
+        return viewConfig.ResponseEntity(HttpStatus.CREATED, tweetOptional);
     }
 
-    public boolean DeleteTweet(Long tweetId, JwtAuthenticationToken token){
+    public ResponseEntity<Map<String, Object>> DeleteTweet(String tweetId, JwtAuthenticationToken token){
 
         var user = userRepository.findById(UUID.fromString(token.getName()));
 
-        Optional<Tweet> tweet = tweetRepository.findById(tweetId);
+        Optional<Tweet> tweet = tweetRepository.findById(UUID.fromString(tweetId));
 
-        var isAdmin = user.get().getRoles().stream().anyMatch(role -> role.getName().equalsIgnoreCase(Role.Values.ADMIN.name()));
+        String tweetOptional = tweet.map(tweetDelete -> {
 
-        if (isAdmin || tweet.get().getUser().getUserId().equals(UUID.fromString(token.getName()))) {
-            
-            tweetRepository.deleteById(tweetId);
+            var isAdmin = user.get().getRoles().stream().anyMatch(role -> role.getName().equalsIgnoreCase("admin"));
+            var isMine = tweetDelete.getUser().getUserId().toString().equals(token.getName());
 
-            return true;
-        }
+            if (isMine || isAdmin) {
 
-        return false;
+                tweetRepository.deleteById(UUID.fromString(tweetId));
+                return "Publicação deletada!";
+            }
+
+            return "Usuário não contém as credênciais necessárias!";
+        }).orElse("Esse tweet não existe!");
+
+    
+        return  viewConfig.ResponseEntity(HttpStatus.FORBIDDEN, tweetOptional);
 
     }   
 
-    public boolean UpdateTweets(CreateTweetDto dto, Long tweetId, JwtAuthenticationToken token){
+    public ResponseEntity<Map<String, Object>> UpdateTweets(CreateTweetDto dto, String tweetId, JwtAuthenticationToken token){
 
-        Optional<Tweet> optionalTweet = tweetRepository.findById(tweetId);
+        Optional<Tweet> optionalTweet = tweetRepository.findById(UUID.fromString(tweetId));
 
-        if (!optionalTweet.get().getUser().getUserId().equals(UUID.fromString(token.getName()))) {
-            
-            return false;
-        }
+        String tweetUpdated = optionalTweet.map(tweet -> {
 
-        boolean tweetUpdated = optionalTweet.map(tweet -> {
+            if (!tweet.getUser().getUserId().equals(UUID.fromString(token.getName()))) {
+                return "Usuário sem as credenciais necessárias para esta ação!";
+            }
+
             tweet.setContent(dto.content());
             tweetRepository.save(tweet);
-            return true; 
-        }).orElse(false);
-        
-        return tweetUpdated;
+            return "Publicação atualizada com sucesso!";
+        }).orElse("Publicação não encontrada!");
+
+        return  viewConfig.ResponseEntity(HttpStatus.OK, tweetUpdated);
     }
 
-    @SuppressWarnings("rawtypes")
-    public List GetTweets(){
-        return tweetRepository.findTweetsWithoutUserData();
+    public ResponseEntity<Map<String, Object>> GetTweets(){
+
+        return viewConfig.ResponseEntityList(HttpStatus.OK, tweetRepository.findTweetsWithoutUserData());
     }
    
 }
