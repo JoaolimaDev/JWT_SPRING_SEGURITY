@@ -40,12 +40,14 @@ public class SecurityConfig {
 
         httpSecurity.authorizeHttpRequests(authorize -> authorize
         .requestMatchers(HttpMethod.POST, "/login").permitAll()
-        .requestMatchers(HttpMethod.POST, "/users").permitAll()
+        .requestMatchers(HttpMethod.POST, "/register").permitAll()
+        .requestMatchers("/v3/api-docs").permitAll()
+        .requestMatchers("/swagger-ui/***").permitAll()
+        .requestMatchers("/v3/api-docs/swagger-config").permitAll()
         .anyRequest().authenticated())
         .csrf(csrf -> csrf.disable()).oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-
-        return httpSecurity.build();
+        return httpSecurity.build();        
     }
 
     @Bean
