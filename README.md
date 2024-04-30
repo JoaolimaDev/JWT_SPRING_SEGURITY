@@ -11,7 +11,7 @@ O projeto ainda está em desenvolvimento e as próximas atualizações serão vo
 - [x] JWT
 - [x] Docker Postgresql
 - [ ] Implementar RABAC, Role based access control.
-- [ ] Adicionar services de checagem
+- [x] Adicionar services de checagem
 - [ ] Adicionar testes
 
 ## 💻 Pré-requisitos
@@ -21,6 +21,12 @@ Antes de começar, verifique se você atendeu aos seguintes requisitos:
 - Maven para gerenciamento de pacotes
 - Java 17.0 +
 - Certifique que a porta 5432 esteja livre para a inicialização do docker, (sudo docker compose up) em sistemas linux.
+
+## ☕  Swagger disponível :
+
+URL : http://localhost:8080/
+
+![alt text](image.png)
 
 ## 🤝 Colaboradores
 
