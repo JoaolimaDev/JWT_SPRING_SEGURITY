@@ -26,16 +26,16 @@ public class UserService implements PasswordConfig {
 
     public RoleRepository roleRepository;
     public UserRepository userRepository;
-    public BCryptPasswordEncoder passwordEncoder;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    public UserService(RoleRepository roleRepository, UserRepository userRepository,
-    BCryptPasswordEncoder passwordEncoder) {
 
+    public UserService(RoleRepository roleRepository, UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder) {
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.roleRepository = roleRepository;
         this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
     }
 
+    
     public ResponseEntity<HttpResponse> updateUser(UpdateUser dto, JwtAuthenticationToken id){
 
         if (dto.role().contains("admin")) {
@@ -75,7 +75,7 @@ public class UserService implements PasswordConfig {
             user.setRoles(roles);
             user.setUsername(dto.username());
             user.setEmail(dto.email());
-            user.setPassword(dto.password());
+            user.setPassword(bCryptPasswordEncoder.encode(dto.password()));
             userRepository.save(user);
             return "Usuário " + dto.username() + " atualizado!";
         }).orElse("Usuário não encontrado!");
